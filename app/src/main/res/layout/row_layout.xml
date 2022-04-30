@@ -46,44 +46,46 @@
 
                 <TextView
                     android:id="@+id/tvName"
-                    android:layout_width="match_parent"
+                    android:layout_width="163dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginRight="10dp"
-                    android:text="Name"
+                    android:text="@string/new_contact"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <EditText
                     android:id="@+id/etName"
-                    android:layout_width="match_parent"
+                    android:layout_width="163dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:minHeight="40dp"
-                    android:text="Name"
+                    android:text="@string/new_contact"
                     tools:ignore="TouchTargetSizeCheck" />
 
                 <TextView
                     android:id="@+id/tvNumber"
-                    android:layout_width="match_parent"
+                    android:layout_width="163dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginTop="-5dp"
+                    android:layout_marginRight="10dp"
+                    android:text="@string/number" />
 
                 <EditText
                     android:id="@+id/etNumber"
-                    android:layout_width="match_parent"
+                    android:layout_width="163dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:ems="10"
                     android:inputType="phone"
                     android:minHeight="40dp"
-                    android:text="Number"
+                    android:text="@string/number"
                     tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
             </LinearLayout>

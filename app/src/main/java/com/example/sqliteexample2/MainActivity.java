@@ -48,14 +48,13 @@ public class MainActivity extends AppCompatActivity {
         etNumber = findViewById(R.id.etNumber);
         tvNumber = findViewById(R.id.tvNumber);
         btnAdd = findViewById(R.id.btnAdd);
+        recyclerView = findViewById(R.id.rvList);
+        recyclerView.setHasFixedSize(true);
 
         myDB = new MyDataBaseHelper(MainActivity.this);
         persons = new ArrayList<>();
 
         storeDataInArrays();
-
-        recyclerView = findViewById(R.id.rvList);
-        recyclerView.setHasFixedSize(true);
 
         layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
@@ -68,10 +67,9 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(dividerItemDecoration);
 
         btnAdd.setOnClickListener(v -> {
-            Person person = myDB.addPerson("Name1", "Number1");
+            Person person = myDB.addPerson(getString(R.string.new_contact), getString(R.string.number));
             persons.add(person);
             myAdapter.notifyItemInserted(persons.size() - 1);
-            recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
         });
 
     }
