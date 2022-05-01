@@ -1,5 +1,8 @@
 package com.example.sqliteexample2;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,10 +11,14 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton btnAdd;
     RecyclerView recyclerView;
     MyDataBaseHelper myDB;
+    int REQUEST_CODE = 1;
     RecyclerView.Adapter myAdapter;
     RecyclerView.LayoutManager layoutManager;
     ArrayList<Person> persons;
@@ -51,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.rvList);
         recyclerView.setHasFixedSize(true);
 
+
         myDB = new MyDataBaseHelper(MainActivity.this);
         persons = new ArrayList<>();
 
@@ -66,12 +75,20 @@ public class MainActivity extends AppCompatActivity {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
 
+
         btnAdd.setOnClickListener(v -> {
             Person person = myDB.addPerson(getString(R.string.new_contact), getString(R.string.number));
             persons.add(person);
             myAdapter.notifyItemInserted(persons.size() - 1);
         });
 
+    }
+
+    public void imageChooser() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Complete Action Using"), REQUEST_CODE);
     }
 
     final ItemTouchHelper.SimpleCallback simpleCallback =

@@ -28,6 +28,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
         ImageView ivUser;
         TextView tvName, tvNumber;
         EditText etName, etNumber;
+        Button btnEditImage;
         boolean editController = false;
         private long lastTouchTime = 0;
         private long currentTouchTime = 0;
@@ -39,6 +40,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
             etName = itemView.findViewById(R.id.etName);
             tvNumber = itemView.findViewById(R.id.tvNumber);
             etNumber = itemView.findViewById(R.id.etNumber);
+            btnEditImage = itemView.findViewById(R.id.btnEditImage);
             etName.setVisibility(View.GONE);
             etNumber.setVisibility(View.GONE);
 
@@ -53,7 +55,13 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
                     currentTouchTime = 0;
                 }
             });
+
+            btnEditImage.setOnClickListener(v -> {
+                MainActivity mainActivity = new MainActivity();
+                mainActivity.imageChooser();
+            });
         }
+
 
         private void Editor(String id, int position) {
             if (editController) {
@@ -105,6 +113,5 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
     public int getItemCount() {
         return persons.size();
     }
-
 
 }
