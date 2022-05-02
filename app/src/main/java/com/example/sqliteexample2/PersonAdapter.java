@@ -57,7 +57,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
             });
 
             btnEditImage.setOnClickListener(v -> {
-                MainActivity mainActivity = new MainActivity();
+                MainActivity mainActivity = MainActivity.getMainActivity();
                 mainActivity.imageChooser();
             });
         }

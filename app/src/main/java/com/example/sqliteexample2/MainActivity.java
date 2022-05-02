@@ -39,12 +39,14 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView.Adapter myAdapter;
     RecyclerView.LayoutManager layoutManager;
     ArrayList<Person> persons;
+    static MainActivity mainActivity;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mainActivity = this;
     }
 
     @Override
@@ -82,6 +84,10 @@ public class MainActivity extends AppCompatActivity {
             myAdapter.notifyItemInserted(persons.size() - 1);
         });
 
+    }
+
+    public static MainActivity getMainActivity() {
+        return mainActivity;
     }
 
     public void imageChooser() {
