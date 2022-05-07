@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     static MainActivity mainActivity;
     ActivityResultLauncher<Intent> activityResultLauncher;
     PersonAdapter.ViewHolder currentViewHolder;
+    int position;
 
 
     @Override
@@ -64,23 +66,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.rvList);
         recyclerView.setHasFixedSize(true);
 
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                Intent intent = result.getData();
-                if (intent != null) {
-                    try {
-
-//                        Drawable drawable = MediaStore.Images.Media.ge
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), intent.getData());
-                        currentViewHolder.setIvUser(bitmap);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
 
         myDB = new MyDataBaseHelper(MainActivity.this);
         persons = new ArrayList<>();
@@ -99,14 +84,32 @@ public class MainActivity extends AppCompatActivity {
 
 
         btnAdd.setOnClickListener(v -> {
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.nekit_round);
+            Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.user_icon_new), 200, 200, true);
+//            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.nekit_round);
             Person person = myDB.addPerson(getString(R.string.new_contact), getString(R.string.number), Utils.getBytes(bitmap));
             persons.add(person);
             myAdapter.notifyItemInserted(persons.size() - 1);
         });
 
-    }
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                Intent intent = result.getData();
+                if (intent != null) {
+                    try {
+                        String id = persons.get(position).getId();
+                        Bitmap bitmap = Bitmap.createScaledBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), intent.getData()), 200, 200, true);
+                        myDB.updateImageData(id, Utils.getBytes(bitmap));
+                        persons.get(position).setImage(Utils.getBytes(bitmap));
+                        myAdapter.notifyItemChanged(position);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
 
+    }
 
     public static MainActivity getMainActivity() {
         return mainActivity;
@@ -117,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         intent.setType("image/*");
         activityResultLauncher.launch(intent);
         currentViewHolder = viewHolder;
+        position = currentViewHolder.getAdapterPosition();
 //        intent.setAction(Intent.ACTION_GET_CONTENT);
 //        startActivityForResult(Intent.createChooser(intent, "Complete Action Using"), REQUEST_CODE);
     }
@@ -145,16 +149,17 @@ public class MainActivity extends AppCompatActivity {
                     String id = persons.get(position).getId();
                     String name = persons.get(position).getName();
                     String number = persons.get(position).getNumber();
+                    byte[] image = Utils.getBytes(Utils.getImage(persons.get(position).getImage()));
                     myDB.deleteOneRow(String.valueOf(id));
                     persons.remove(position);
                     myAdapter.notifyItemRemoved(position);
 
-//                    Snackbar.make(recyclerView, String.valueOf(position),
-//                            Snackbar.LENGTH_LONG).setAction("UNDO", v -> {
-//                        Person person = myDB.addPerson(name, number);
-//                        persons.add(position, person);
-//                        myAdapter.notifyItemInserted(position);
-//                    }).show();
+                    Snackbar.make(recyclerView, String.valueOf(position),
+                            Snackbar.LENGTH_LONG).setAction("UNDO", v -> {
+                        Person person = myDB.addPerson(name, number, image);
+                        persons.add(position, person);
+                        myAdapter.notifyItemInserted(position);
+                    }).show();
                 }
             };
 

@@ -19,6 +19,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
 
     Context context;
     ArrayList<Person> persons;
+
     public PersonAdapter(Context context,
                          ArrayList<Person> persons) {
         this.context = context;
@@ -66,7 +67,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
             });
         }
 
-        public void setIvUser(Bitmap bitmap){
+        public void setIvUser(Bitmap bitmap) {
             this.bitmap = bitmap;
             ivUser.setImageBitmap(bitmap);
         }
@@ -111,6 +112,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull PersonAdapter.ViewHolder holder, int position) {
+        holder.ivUser.setImageBitmap(Utils.getImage(persons.get(position).getImage()));
         holder.etName.setText(persons.get(position).getName());
         holder.tvName.setText(persons.get(position).getName());
         holder.tvNumber.setText(persons.get(position).getNumber());
