@@ -1,5 +1,7 @@
 package com.example.sqliteexample2;
 
+
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -11,20 +13,20 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.provider.MediaStore;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -35,11 +37,12 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton btnAdd;
     RecyclerView recyclerView;
     MyDataBaseHelper myDB;
-    int REQUEST_CODE = 1;
     RecyclerView.Adapter myAdapter;
     RecyclerView.LayoutManager layoutManager;
     ArrayList<Person> persons;
     static MainActivity mainActivity;
+    ActivityResultLauncher<Intent> activityResultLauncher;
+    PersonAdapter.ViewHolder currentViewHolder;
 
 
     @Override
@@ -49,10 +52,10 @@ public class MainActivity extends AppCompatActivity {
         mainActivity = this;
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     protected void onStart() {
         super.onStart();
-
         etName = findViewById(R.id.etName);
         tvName = findViewById(R.id.tvName);
         etNumber = findViewById(R.id.etNumber);
@@ -60,6 +63,23 @@ public class MainActivity extends AppCompatActivity {
         btnAdd = findViewById(R.id.btnAdd);
         recyclerView = findViewById(R.id.rvList);
         recyclerView.setHasFixedSize(true);
+
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                Intent intent = result.getData();
+                if (intent != null) {
+                    try {
+
+//                        Drawable drawable = MediaStore.Images.Media.ge
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), intent.getData());
+                        currentViewHolder.setIvUser(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
 
 
         myDB = new MyDataBaseHelper(MainActivity.this);
@@ -79,22 +99,26 @@ public class MainActivity extends AppCompatActivity {
 
 
         btnAdd.setOnClickListener(v -> {
-            Person person = myDB.addPerson(getString(R.string.new_contact), getString(R.string.number));
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.nekit_round);
+            Person person = myDB.addPerson(getString(R.string.new_contact), getString(R.string.number), Utils.getBytes(bitmap));
             persons.add(person);
             myAdapter.notifyItemInserted(persons.size() - 1);
         });
 
     }
 
+
     public static MainActivity getMainActivity() {
         return mainActivity;
     }
 
-    public void imageChooser() {
-        Intent intent = new Intent();
+    public void imageChooser(PersonAdapter.ViewHolder viewHolder) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Complete Action Using"), REQUEST_CODE);
+        activityResultLauncher.launch(intent);
+        currentViewHolder = viewHolder;
+//        intent.setAction(Intent.ACTION_GET_CONTENT);
+//        startActivityForResult(Intent.createChooser(intent, "Complete Action Using"), REQUEST_CODE);
     }
 
     final ItemTouchHelper.SimpleCallback simpleCallback =
@@ -125,12 +149,12 @@ public class MainActivity extends AppCompatActivity {
                     persons.remove(position);
                     myAdapter.notifyItemRemoved(position);
 
-                    Snackbar.make(recyclerView, String.valueOf(position),
-                            Snackbar.LENGTH_LONG).setAction("UNDO", v -> {
-                        Person person = myDB.addPerson(name, number);
-                        persons.add(position, person);
-                        myAdapter.notifyItemInserted(position);
-                    }).show();
+//                    Snackbar.make(recyclerView, String.valueOf(position),
+//                            Snackbar.LENGTH_LONG).setAction("UNDO", v -> {
+//                        Person person = myDB.addPerson(name, number);
+//                        persons.add(position, person);
+//                        myAdapter.notifyItemInserted(position);
+//                    }).show();
                 }
             };
 
@@ -143,7 +167,8 @@ public class MainActivity extends AppCompatActivity {
                 persons.add(new Person(
                         cursor.getString(0),
                         cursor.getString(1),
-                        cursor.getString(2)));
+                        cursor.getString(2),
+                        cursor.getBlob(3)));
             }
         }
     }

@@ -19,6 +19,7 @@ public class MyDataBaseHelper extends SQLiteOpenHelper {
     private static final String KEY_ID = "_id";
     private static final String KEY_NAME = "person_name";
     private static final String KEY_NUMBER = "_number";
+    private static final String KEY_IMAGE = "_image";
 
     public MyDataBaseHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -27,11 +28,12 @@ public class MyDataBaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String query = "CREATE TABLE " +
-                TABLE_NAME + " (" +
-                KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                KEY_NAME + " TEXT NOT NULL, " +
-                KEY_NUMBER + " TEXT NOT NULL);";
+        String query = "CREATE TABLE " + TABLE_NAME +
+                " (" + KEY_ID +
+                " INTEGER PRIMARY KEY AUTOINCREMENT, " + KEY_NAME +
+                " TEXT NOT NULL, " + KEY_NUMBER +
+                " TEXT NOT NULL," + KEY_IMAGE +
+                " TEXT NOT NULL );";
 
         db.execSQL(query);
     }
@@ -42,18 +44,18 @@ public class MyDataBaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    Person addPerson(String name, String number) {
+    Person addPerson(String name, String number, byte[] image) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-
         cv.put(KEY_NAME, name);
         cv.put(KEY_NUMBER, number);
+        cv.put(KEY_IMAGE, image);
         long result = db.insert(TABLE_NAME, null, cv);
         if (result == -1) {
             Toast.makeText(context, "Failed", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(context, "Successfully done", Toast.LENGTH_SHORT).show();
-            return new Person(String.valueOf(result), name, number);
+            return new Person(String.valueOf(result), name, number, image);
         }
         return null;
     }
@@ -79,7 +81,7 @@ public class MyDataBaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    void updateDate(String row_id, String name, String number) {
+    void updateData(String row_id, String name, String number) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(KEY_NAME, name);

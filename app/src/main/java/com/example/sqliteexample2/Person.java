@@ -4,13 +4,22 @@ public class Person {
     private String id;
     private String name;
     private String number;
+    private byte [] image;
 
-    public Person(String id, String name, String number) {
+    public Person(String id, String name, String number, byte[] image) {
         this.id = id;
         this.name = name;
         this.number = number;
+        this.image = image;
     }
 
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
 
     public String getId() {
         return id;

@@ -1,6 +1,7 @@
 package com.example.sqliteexample2;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
         TextView tvName, tvNumber;
         EditText etName, etNumber;
         Button btnEditImage;
+        Bitmap bitmap;
         boolean editController = false;
         private long lastTouchTime = 0;
         private long currentTouchTime = 0;
@@ -43,6 +45,8 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
             btnEditImage = itemView.findViewById(R.id.btnEditImage);
             etName.setVisibility(View.GONE);
             etNumber.setVisibility(View.GONE);
+            ivUser.setImageBitmap(bitmap);
+
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -58,8 +62,13 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
 
             btnEditImage.setOnClickListener(v -> {
                 MainActivity mainActivity = MainActivity.getMainActivity();
-                mainActivity.imageChooser();
+                mainActivity.imageChooser(this);
             });
+        }
+
+        public void setIvUser(Bitmap bitmap){
+            this.bitmap = bitmap;
+            ivUser.setImageBitmap(bitmap);
         }
 
 
@@ -74,7 +83,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
                 MyDataBaseHelper myDB = new MyDataBaseHelper(context);
                 String name = etName.getText().toString().trim();
                 String number = etNumber.getText().toString().trim();
-                myDB.updateDate(id, name, number);
+                myDB.updateData(id, name, number);
                 persons.get(position).setName(name);
                 persons.get(position).setNumber(number);
                 notifyDataSetChanged();
