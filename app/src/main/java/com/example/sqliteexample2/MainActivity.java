@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         tvNumber = findViewById(R.id.tvNumber);
         btnAdd = findViewById(R.id.btnAdd);
         recyclerView = findViewById(R.id.rvList);
+        recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setHasFixedSize(true);
 
 
@@ -84,11 +85,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         btnAdd.setOnClickListener(v -> {
-            Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.user_icon_new), 200, 200, true);
-//            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.nekit_round);
+
+            Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.sample_user_icon), 200, 200, true);
             Person person = myDB.addPerson(getString(R.string.new_contact), getString(R.string.number), Utils.getBytes(bitmap));
             persons.add(person);
             myAdapter.notifyItemInserted(persons.size() - 1);
+            recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
         });
 
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {

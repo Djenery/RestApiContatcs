@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_window_button"
     tools:context=".MainActivity">
 
 
@@ -25,7 +26,9 @@
         app:layout_constraintStart_toEndOf="@+id/rvList"
         app:layout_constraintTop_toBottomOf="@+id/rvList"
         app:layout_constraintVertical_bias="1.0"
+        app:backgroundTint="#021327"
         app:srcCompat="@drawable/add"
+        app:tint="#FFFFFF"
         tools:ignore="SpeakableTextPresentCheck"
         android:contentDescription="@string/add_button">
 

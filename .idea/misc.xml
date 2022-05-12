@@ -6,14 +6,20 @@
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable-v24/User.xml" value="0.202" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable-v24/nekit_foreground.xml" value="0.1" />
+        <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable/add.xml" value="0.163" />
+        <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable/bg_window.xml" value="0.183" />
+        <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable/bg_window_button.xml" value="0.163" />
+        <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable/bg_window_card.xml" value="0.153" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable/edit.xml" value="0.1035" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable/plus.xml" value="0.1035" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable/rounded_plus.xml" value="0.1035" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/drawable/user_icon.xml" value="0.1465" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/layout/bg_window.xml" value="0.24094202898550723" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/layout/fragment_add_person.xml" value="0.33" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/layout/fragment_list.xml" value="0.15896739130434784" />
+        <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/layout/new_person_dialog.xml" value="0.33" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/layout/row_layout.xml" value="0.4696969696969697" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.179" />
         <entry key="..\:/Programms/AndoridLearningProjects/SQLiteExample2/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1" />
