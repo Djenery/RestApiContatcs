@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_window_button"
+    android:background="@drawable/bg_activity"
     tools:context=".MainActivity">
 
 

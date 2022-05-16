@@ -8,4 +8,6 @@
     <string name="enter_number">Enter number</string>
     <string name="enter_name">Enter name</string>
     <string name="edit_photo">editPhoto</string>
+    <string name="please_enter_number">Please enter number</string>
+    <string name="please_enter_name">Please enter name</string>
 </resources>

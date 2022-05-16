@@ -14,12 +14,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText etName, etNumber;
     TextView tvName, tvNumber;
+    Button btnCreate, btnCancel;
     FloatingActionButton btnAdd;
     RecyclerView recyclerView;
     MyDataBaseHelper myDB;
@@ -54,13 +57,10 @@ public class MainActivity extends AppCompatActivity {
         mainActivity = this;
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     protected void onStart() {
         super.onStart();
-        etName = findViewById(R.id.etName);
         tvName = findViewById(R.id.tvName);
-        etNumber = findViewById(R.id.etNumber);
         tvNumber = findViewById(R.id.tvNumber);
         btnAdd = findViewById(R.id.btnAdd);
         recyclerView = findViewById(R.id.rvList);
@@ -83,14 +83,8 @@ public class MainActivity extends AppCompatActivity {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
 
-
         btnAdd.setOnClickListener(v -> {
-
-            Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.sample_user_icon), 200, 200, true);
-            Person person = myDB.addPerson(getString(R.string.new_contact), getString(R.string.number), Utils.getBytes(bitmap));
-            persons.add(person);
-            myAdapter.notifyItemInserted(persons.size() - 1);
-            recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
+            showDialog();
         });
 
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -111,6 +105,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void showDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.layout_person_dialog);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_window_dialog);
+        btnCreate = dialog.findViewById(R.id.btnCreate);
+        btnCancel = dialog.findViewById(R.id.btnCancel);
+        etName = dialog.findViewById(R.id.etName);
+        etNumber = dialog.findViewById(R.id.etNumber);
+
+        btnCreate.setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            String number = etNumber.getText().toString().trim();
+            Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),
+                    R.drawable.sample_user_icon), 200, 200, true);
+            Person person = myDB.addPerson(name, number, Utils.getBytes(bitmap));
+            persons.add(person);
+            myAdapter.notifyItemInserted(persons.size() - 1);
+            recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
+            dialog.dismiss();
+        });
+        btnCancel.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+        dialog.show();
     }
 
     public static MainActivity getMainActivity() {
