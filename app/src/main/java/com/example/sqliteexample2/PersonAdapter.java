@@ -62,9 +62,12 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
             });
 
             btnEditImage.setOnClickListener(v -> {
-                MainActivity mainActivity = MainActivity.getMainActivity();
-                mainActivity.ImageChooser(this);
+                if (mainActivityInstanceOf()) ((MainActivity) context).ImageChooser(this);
             });
+        }
+
+        public boolean mainActivityInstanceOf() {
+            return context instanceof MainActivity;
         }
 
 
@@ -82,7 +85,8 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
                 myDB.updateData(id, name, number);
                 persons.get(position).setName(name);
                 persons.get(position).setNumber(number);
-                notifyDataSetChanged();
+                if (mainActivityInstanceOf())
+                    ((MainActivity) context).myAdapter.notifyItemChanged(position);
 
             } else {
                 editController = true;

@@ -1,8 +1,6 @@
 package com.example.sqliteexample2;
 
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -16,11 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -49,10 +44,9 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton btnAdd;
     RecyclerView recyclerView;
     MyDataBaseHelper myDB;
-    RecyclerView.Adapter myAdapter;
+    RecyclerView.Adapter<PersonAdapter.ViewHolder> myAdapter;
     RecyclerView.LayoutManager layoutManager;
     ArrayList<Person> persons;
-    static MainActivity mainActivity;
     ActivityResultLauncher<Intent> activityResultLauncher;
     PersonAdapter.ViewHolder currentViewHolder;
      private int position;
@@ -62,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mainActivity = this;
     }
 
     @Override
@@ -91,24 +84,20 @@ public class MainActivity extends AppCompatActivity {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
 
-        btnAdd.setOnClickListener(v -> {
-            showDialog();
-        });
+        btnAdd.setOnClickListener(v -> showDialog());
 
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                Intent intent = result.getData();
-                if (intent != null) {
-                    try {
-                        String id = persons.get(position).getId();
-                        Bitmap bitmap = Bitmap.createScaledBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), intent.getData()), 200, 200, true);
-                        myDB.updateImageData(id, Utils.getBytes(bitmap));
-                        persons.get(position).setImage(Utils.getBytes(bitmap));
-                        myAdapter.notifyItemChanged(position);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            Intent intent = result.getData();
+            if (intent != null) {
+                try {
+                    String id = persons.get(position).getId();
+                    Bitmap bitmap = Bitmap.createScaledBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(),
+                            intent.getData()), 200, 200, true);
+                    myDB.updateImageData(id, Utils.getBytes(bitmap));
+                    persons.get(position).setImage(Utils.getBytes(bitmap));
+                    myAdapter.notifyItemChanged(position);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -135,18 +124,12 @@ public class MainActivity extends AppCompatActivity {
             recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
             dialog.dismiss();
         });
-        btnCancel.setOnClickListener(v -> {
-            dialog.dismiss();
-        });
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
 
-    public static MainActivity getMainActivity() {
-        return mainActivity;
-    }
-
     public void ImageChooser(PersonAdapter.ViewHolder viewHolder) {
-        boolean isPermissionGranted = ContextCompat.checkSelfPermission(getMainActivity(),
+        boolean isPermissionGranted = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
         askPermission(isPermissionGranted);
         if (!isPermissionGranted) {
@@ -161,11 +144,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void askPermission(boolean isPermissionGranted) {
         if (isPermissionGranted){
-            ActivityCompat.requestPermissions(getMainActivity(),
+            ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, UNIQUE_REQUEST_CODE);
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -176,18 +158,19 @@ public class MainActivity extends AppCompatActivity {
             }
             if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
 
-                if (ActivityCompat.shouldShowRequestPermissionRationale(getMainActivity(),
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
                     AlertDialog.Builder dialog = new AlertDialog.Builder(this);
                     dialog.setMessage("This permission is important to save files to the phone! Please permit it!")
                             .setTitle("Important permission required!");
-                    dialog.setPositiveButton("Ok", (dialogInterface, i) -> {
-                        ActivityCompat.requestPermissions(getMainActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, UNIQUE_REQUEST_CODE);
-                    });
-                    dialog.setNegativeButton("No thank!", (dialogInterface, i) -> {
-                        Toast.makeText(this, "Cannot be done!", Toast.LENGTH_SHORT).show();
-                    });
+
+                    dialog.setPositiveButton("Ok", (dialogInterface, i) -> ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, UNIQUE_REQUEST_CODE));
+
+                    dialog.setNegativeButton("No thank!", (dialogInterface, i) ->
+                            Toast.makeText(this, "Cannot be done!", Toast.LENGTH_SHORT).show());
+
                     dialog.show();
                 } else {
                     Toast.makeText(this, "We will never show this to you again!", Toast.LENGTH_SHORT).show();
