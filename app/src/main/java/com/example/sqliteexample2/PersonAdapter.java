@@ -63,13 +63,8 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
 
             btnEditImage.setOnClickListener(v -> {
                 MainActivity mainActivity = MainActivity.getMainActivity();
-                mainActivity.imageChooser(this);
+                mainActivity.ImageChooser(this);
             });
-        }
-
-        public void setIvUser(Bitmap bitmap) {
-            this.bitmap = bitmap;
-            ivUser.setImageBitmap(bitmap);
         }
 
 
@@ -91,7 +86,6 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
 
             } else {
                 editController = true;
-
                 tvName.setVisibility(View.GONE);
                 tvNumber.setVisibility(View.GONE);
                 etName.setVisibility(View.VISIBLE);

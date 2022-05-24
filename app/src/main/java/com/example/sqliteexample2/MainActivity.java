@@ -8,14 +8,21 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,6 +42,7 @@ import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int UNIQUE_REQUEST_CODE = 1;
     EditText etName, etNumber;
     TextView tvName, tvNumber;
     Button btnCreate, btnCancel;
@@ -47,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     static MainActivity mainActivity;
     ActivityResultLauncher<Intent> activityResultLauncher;
     PersonAdapter.ViewHolder currentViewHolder;
-    int position;
+     private int position;
 
 
     @Override
@@ -137,15 +145,58 @@ public class MainActivity extends AppCompatActivity {
         return mainActivity;
     }
 
-    public void imageChooser(PersonAdapter.ViewHolder viewHolder) {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        activityResultLauncher.launch(intent);
+    public void ImageChooser(PersonAdapter.ViewHolder viewHolder) {
+        boolean isPermissionGranted = ContextCompat.checkSelfPermission(getMainActivity(),
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
+        askPermission(isPermissionGranted);
+        if (!isPermissionGranted) {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            String title = "Choose an application";
+            activityResultLauncher.launch(Intent.createChooser(intent, title));
+        }
         currentViewHolder = viewHolder;
         position = currentViewHolder.getAdapterPosition();
-//        intent.setAction(Intent.ACTION_GET_CONTENT);
-//        startActivityForResult(Intent.createChooser(intent, "Complete Action Using"), REQUEST_CODE);
     }
+
+    private void askPermission(boolean isPermissionGranted) {
+        if (isPermissionGranted){
+            ActivityCompat.requestPermissions(getMainActivity(),
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, UNIQUE_REQUEST_CODE);
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == UNIQUE_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Thank you!Permission granted!", Toast.LENGTH_SHORT).show();
+            }
+            if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(getMainActivity(),
+                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                    dialog.setMessage("This permission is important to save files to the phone! Please permit it!")
+                            .setTitle("Important permission required!");
+                    dialog.setPositiveButton("Ok", (dialogInterface, i) -> {
+                        ActivityCompat.requestPermissions(getMainActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, UNIQUE_REQUEST_CODE);
+                    });
+                    dialog.setNegativeButton("No thank!", (dialogInterface, i) -> {
+                        Toast.makeText(this, "Cannot be done!", Toast.LENGTH_SHORT).show();
+                    });
+                    dialog.show();
+                } else {
+                    Toast.makeText(this, "We will never show this to you again!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        }
+    }
+
 
     final ItemTouchHelper.SimpleCallback simpleCallback =
             new ItemTouchHelper.SimpleCallback(
