@@ -10,4 +10,5 @@
     <string name="edit_photo">editPhoto</string>
     <string name="please_enter_number">Please enter number</string>
     <string name="please_enter_name">Please enter name</string>
+    <string name="add_edit">http://89.66.186.198:8080/contacts/addEdit</string>
 </resources>

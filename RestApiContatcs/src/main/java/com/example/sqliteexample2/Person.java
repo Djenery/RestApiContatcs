@@ -6,6 +6,12 @@ public class Person {
     private String number;
     private byte [] image;
 
+    public Person(String name, String number, byte[] image) {
+        this.name = name;
+        this.number = number;
+        this.image = image;
+    }
+
     public Person(String id, String name, String number, byte[] image) {
         this.id = id;
         this.name = name;

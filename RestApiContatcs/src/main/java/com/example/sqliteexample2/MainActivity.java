@@ -30,10 +30,12 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,19 +45,21 @@ public class MainActivity extends AppCompatActivity {
     Button btnCreate, btnCancel;
     FloatingActionButton btnAdd;
     RecyclerView recyclerView;
+    RestApiService rest;
     MyDataBaseHelper myDB;
     RecyclerView.Adapter<PersonAdapter.ViewHolder> myAdapter;
     RecyclerView.LayoutManager layoutManager;
     ArrayList<Person> persons;
     ActivityResultLauncher<Intent> activityResultLauncher;
     PersonAdapter.ViewHolder currentViewHolder;
-     private int position;
+    private int position;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        rest = RestApiService.getInstance(this);
     }
 
     @Override
@@ -118,8 +122,11 @@ public class MainActivity extends AppCompatActivity {
             String number = etNumber.getText().toString().trim();
             Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),
                     R.drawable.sample_user_icon), 200, 200, true);
-            Person person = myDB.addPerson(name, number, Utils.getBytes(bitmap));
-            persons.add(person);
+            Person person = new Person(name, number, Utils.getBytes(bitmap));
+            Gson json = new Gson();
+            String gson = json.toJson(person);
+            rest.sendData(gson, json);
+
             myAdapter.notifyItemInserted(persons.size() - 1);
             recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
             dialog.dismiss();
@@ -127,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
+
 
     public void ImageChooser(PersonAdapter.ViewHolder viewHolder) {
         boolean isPermissionGranted = ContextCompat.checkSelfPermission(this,
@@ -143,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void askPermission(boolean isPermissionGranted) {
-        if (isPermissionGranted){
+        if (isPermissionGranted) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, UNIQUE_REQUEST_CODE);
         }
@@ -220,18 +228,28 @@ public class MainActivity extends AppCompatActivity {
             };
 
     void storeDataInArrays() {
-        Cursor cursor = myDB.readAllData();
-        if (cursor.getCount() == 0) {
-            Toast.makeText(MainActivity.this, "No data!", Toast.LENGTH_SHORT).show();
-        } else {
-            while (cursor.moveToNext()) {
-                persons.add(new Person(
-                        cursor.getString(0),
-                        cursor.getString(1),
-                        cursor.getString(2),
-                        cursor.getBlob(3)));
-            }
+        try {
+            List<Person> data = rest.getData();
+            persons.addAll(data);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-    }
 
+
+    }
 }
+
+
+//        Cursor cursor = myDB.readAllData();
+//        if (cursor.getCount() == 0) {
+//            Toast.makeText(MainActivity.this, "No data!", Toast.LENGTH_SHORT).show();
+//        } else {
+//            while (cursor.moveToNext()) {
+//                persons.add(new Person(
+//                        cursor.getString(0),
+//                        cursor.getString(1),
+//                        cursor.getString(2),
+//                        cursor.getBlob(3)));
+//            }
+//        }
+//    }
