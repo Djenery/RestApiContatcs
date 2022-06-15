@@ -1,4 +1,4 @@
-package com.example.sqliteexample2;
+package com.example.restapicontatcs;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -79,14 +79,14 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
                 etName.setVisibility(View.GONE);
                 etNumber.setVisibility(View.GONE);
 
-                MyDataBaseHelper myDB = new MyDataBaseHelper(context);
                 String name = etName.getText().toString().trim();
                 String number = etNumber.getText().toString().trim();
-                myDB.updateData(id, name, number);
-                persons.get(position).setName(name);
-                persons.get(position).setNumber(number);
-                if (mainActivityInstanceOf())
+                if (mainActivityInstanceOf()) {
+                    ((MainActivity) context).editPerson(position, id, name, number,
+                            Utils.getImage(persons.get(position).getImage()));
+                    ((MainActivity) context).updateList();
                     ((MainActivity) context).myAdapter.notifyItemChanged(position);
+                }
 
             } else {
                 editController = true;

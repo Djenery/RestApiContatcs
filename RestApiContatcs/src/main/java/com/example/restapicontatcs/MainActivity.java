@@ -1,4 +1,4 @@
-package com.example.sqliteexample2;
+package com.example.restapicontatcs;
 
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -18,7 +18,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -45,15 +44,15 @@ public class MainActivity extends AppCompatActivity {
     Button btnCreate, btnCancel;
     FloatingActionButton btnAdd;
     RecyclerView recyclerView;
+    ArrayList<Person> persons = new ArrayList<>();
+    RecyclerView.Adapter<PersonAdapter.ViewHolder> myAdapter = new PersonAdapter(MainActivity.this, persons);
+    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
+    Gson gson;
+    String json;
     RestApiService rest;
-    MyDataBaseHelper myDB;
-    RecyclerView.Adapter<PersonAdapter.ViewHolder> myAdapter;
-    RecyclerView.LayoutManager layoutManager;
-    ArrayList<Person> persons;
     ActivityResultLauncher<Intent> activityResultLauncher;
     PersonAdapter.ViewHolder currentViewHolder;
     private int position;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,16 +71,9 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setHasFixedSize(true);
 
-
-        myDB = new MyDataBaseHelper(MainActivity.this);
-        persons = new ArrayList<>();
-
         storeDataInArrays();
 
-        layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
-
-        myAdapter = new PersonAdapter(MainActivity.this, persons);
         recyclerView.setAdapter(myAdapter);
 
         new ItemTouchHelper(simpleCallback).attachToRecyclerView(recyclerView);
@@ -94,18 +86,16 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = result.getData();
             if (intent != null) {
                 try {
-                    String id = persons.get(position).getId();
                     Bitmap bitmap = Bitmap.createScaledBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(),
                             intent.getData()), 200, 200, true);
-                    myDB.updateImageData(id, Utils.getBytes(bitmap));
-                    persons.get(position).setImage(Utils.getBytes(bitmap));
+                    editPerson(position, persons.get(position).getId(), persons.get(position).getName(), persons.get(position).getNumber(), bitmap);
+                    updateList();
                     myAdapter.notifyItemChanged(position);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
-
     }
 
     private void showDialog() {
@@ -118,21 +108,23 @@ public class MainActivity extends AppCompatActivity {
         etNumber = dialog.findViewById(R.id.etNumber);
 
         btnCreate.setOnClickListener(v -> {
+            int newPosition = persons.size();
             String name = etName.getText().toString().trim();
             String number = etNumber.getText().toString().trim();
             Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),
                     R.drawable.sample_user_icon), 200, 200, true);
-            Person person = new Person(name, number, Utils.getBytes(bitmap));
-            Gson json = new Gson();
-            String gson = json.toJson(person);
-            rest.sendData(gson, json);
-
-            myAdapter.notifyItemInserted(persons.size() - 1);
-            recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
+            createPerson(newPosition, name, number, bitmap);
+            addPersonToList();
             dialog.dismiss();
         });
         btnCancel.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
+    }
+
+    private void addPersonToList() {
+        persons.add(rest.getPerson());
+        myAdapter.notifyItemInserted(persons.size());
+        recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
     }
 
 
@@ -188,7 +180,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     final ItemTouchHelper.SimpleCallback simpleCallback =
             new ItemTouchHelper.SimpleCallback(
                     ItemTouchHelper.UP |
@@ -203,6 +194,11 @@ public class MainActivity extends AppCompatActivity {
                     int startPosition = viewHolder.getAdapterPosition();
                     int endPosition = target.getAdapterPosition();
                     Collections.swap(persons, startPosition, endPosition);
+                    for (Person item : persons) {
+                        item.setPosition(persons.indexOf(item));
+                    }
+                    sendList();
+                    updateList();
                     myAdapter.notifyItemMoved(startPosition, endPosition);
                     return false;
                 }
@@ -214,42 +210,77 @@ public class MainActivity extends AppCompatActivity {
                     String name = persons.get(position).getName();
                     String number = persons.get(position).getNumber();
                     byte[] image = Utils.getBytes(Utils.getImage(persons.get(position).getImage()));
-                    myDB.deleteOneRow(String.valueOf(id));
-                    persons.remove(position);
-                    myAdapter.notifyItemRemoved(position);
+                    gson = new Gson();
+                    json = gson.toJson(new Person(position, id, name, number, Utils.getBytes(Utils.getImage(image))));
+                    try {
+                        rest.deletePerson(json);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (rest.getCode() == 200) {
+                        persons.remove(position);
+                        myAdapter.notifyItemRemoved(position);
+                    }
 
                     Snackbar.make(recyclerView, String.valueOf(position),
                             Snackbar.LENGTH_LONG).setAction("UNDO", v -> {
-                        Person person = myDB.addPerson(name, number, image);
-                        persons.add(position, person);
-                        myAdapter.notifyItemInserted(position);
+                        createPerson(position, name, number, Utils.getImage(image));
+                        addPersonRestoredToList(position);
+
                     }).show();
                 }
             };
+
+    public void updateList() {
+        persons.clear();
+        storeDataInArrays();
+    }
+
+    private void sendList() {
+        gson = new Gson();
+        json = gson.toJson(persons);
+        try {
+            rest.sendList(json, gson);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void createPerson(int position, String name, String number, Bitmap bitmap) {
+        Person person = new Person(position, name, number, Utils.getBytes(bitmap));
+        sendJson(person);
+    }
+
+    public void editPerson(int position, String id, String name, String number, Bitmap bitmap) {
+        Person person = new Person(position, id, name, number, Utils.getBytes(bitmap));
+        sendJson(person);
+
+    }
+
+    private void sendJson(Person person) {
+        gson = new Gson();
+        json = gson.toJson(person);
+        try {
+            rest.createPerson(json, gson);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addPersonRestoredToList(int position) {
+        persons.add(position, rest.getPerson());
+        myAdapter.notifyItemInserted(position);
+    }
+
 
     void storeDataInArrays() {
         try {
             List<Person> data = rest.getData();
             persons.addAll(data);
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
     }
 }
-
-
-//        Cursor cursor = myDB.readAllData();
-//        if (cursor.getCount() == 0) {
-//            Toast.makeText(MainActivity.this, "No data!", Toast.LENGTH_SHORT).show();
-//        } else {
-//            while (cursor.moveToNext()) {
-//                persons.add(new Person(
-//                        cursor.getString(0),
-//                        cursor.getString(1),
-//                        cursor.getString(2),
-//                        cursor.getBlob(3)));
-//            }
-//        }
-//    }

@@ -1,18 +1,29 @@
-package com.example.sqliteexample2;
+package com.example.restapicontatcs;
 
 public class Person {
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    private int position;
     private String id;
     private String name;
     private String number;
     private byte [] image;
 
-    public Person(String name, String number, byte[] image) {
+    public Person(int position, String name, String number, byte[] image) {
+        this.position = position;
         this.name = name;
         this.number = number;
         this.image = image;
     }
 
-    public Person(String id, String name, String number, byte[] image) {
+    public Person(int position, String id, String name, String number, byte[] image) {
+        this.position = position;
         this.id = id;
         this.name = name;
         this.number = number;
